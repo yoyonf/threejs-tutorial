@@ -24,7 +24,8 @@ class CubeEnvironment extends Component {
 	renderer;
 	animationID;
 	mount;
-    cube;
+	cube;
+	model;
     
     constructor(props) {
         super(props);
@@ -125,7 +126,7 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		this.addCube();
+		// this.addCube();
         this.addLights();
         this.addModel(AstronautGLB);
 	};
@@ -168,17 +169,18 @@ class CubeEnvironment extends Component {
 		this.scene.add(lights[1]);
 		this.scene.add(lights[2]);
 	};
+	
 	addModel = async (object) => {
         const loader = new GLTFLoader(this.manager);
-        let mesh = new THREE.Object3D();
+        this.model = new THREE.Object3D();
         // console.log("OBJ", object)
 
         loader.load(object, gltf => {
-            mesh = gltf.scene;
+            this.model = gltf.scene;
             // mesh.name = name;
-            mesh.position.z = 0;
+            this.model.position.z = 0;
 
-            this.scene.add(mesh);
+            this.scene.add(this.model);
           });
 	};
 
@@ -220,6 +222,11 @@ class CubeEnvironment extends Component {
 		if (this.cube) {
 			this.cube.rotation.x += 0.01;
 			this.cube.rotation.y += 0.01;
+		}
+
+		if (this.model) {
+			this.model.rotation.x += 0.01;
+			this.model.rotation.y += 0.01;
 		}
 
 		this.renderer.render(this.scene, this.camera);
