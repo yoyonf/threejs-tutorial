@@ -3,6 +3,7 @@ import Layout from "../Layout/Layout";
 import styled from "styled-components";
 import TestEnvironment from "../../Environment/TestEnvironment";
 import CubeEnvironment from "../../Environment/CubeEnvironment";
+import PortfolioEnvironment from "../../Environment/PortfolioEnvironment";
 
 const PortfolioWrapper = styled.div`
     height: 100vh;
@@ -15,11 +16,7 @@ const PortfolioWrapper = styled.div`
 const Portfolio = () => {
   return (
     <Layout>
-        {/* <CubeEnvironment /> */}
-        <PortfolioWrapper>
-            <p> Portfolio </p>
-
-        </PortfolioWrapper>
+        <PortfolioEnvironment />
     </Layout>
   );
 };
