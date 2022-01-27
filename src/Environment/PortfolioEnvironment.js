@@ -15,7 +15,7 @@ const TestEnvironmentWrapper = styled.div`height: 100vh;`;
  *
  */
 class PortfolioEnvironment extends Component {
-	//
+	//Dimensions
 	width;
 	height;
 
@@ -27,7 +27,11 @@ class PortfolioEnvironment extends Component {
 	mount;
 	cube;
     model;
-    clock;
+	clock;
+	raycaster;
+	mouse;
+
+	clickableObjects = [];
 
 	constructor(props) {
 		super(props);
@@ -35,7 +39,8 @@ class PortfolioEnvironment extends Component {
 			hasLoaded: false,
 			itemsLoaded: 0,
 			itemsTotal: 0,
-			showOverlay: false
+			showOverlay: false,
+			pause: false
 		};
 	}
 
@@ -48,7 +53,8 @@ class PortfolioEnvironment extends Component {
 		this.setupScene();
 		this.populateScene();
 		this.startAnimationLoop();
-		window.addEventListener('resize', this.handleWindowResize);
+		this.addEventListeners();
+		// window.addEventListener('resize', this.handleWindowResize);
 	}
 
 	/**
@@ -57,6 +63,7 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	componentWillUnmount() {
+		this.removeEventListeners();
 		window.removeEventListener('resize', this.handleWindowResize);
 		window.cancelAnimationFrame(this.animationID);
 		this.controls.dispose();
@@ -74,11 +81,23 @@ class PortfolioEnvironment extends Component {
 		this.setupControls();
 		this.setupRenderer();
 		this.setupLoadingManager();
+		this.setupRayCaster()
+		this.setupFog();
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
 	};
 
 	/**
-     *
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupFog = () => {
+		this.scene.fog = new THREE.FogExp2(new THREE.Color("white"), 0.001);
+	}
+
+	/**
+     * This function creates the PerspectiveCamera
+	 * and settings
      *
      * @memberof CubeEnvironment
      */
@@ -108,17 +127,49 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	setupControls = () => {
-        // this.controls = new OrbitControls(this.camera, this.mount);
-        this.controls = new FlyControls(this.camera, this.mount);
-        // this.controls.movementSpeed = 1000;
-		// this.controls.rollSpeed = Math.PI / 24;
-		this.controls.autoForward = false;
-        this.controls.dragToLook = false;
-        this.clock = new THREE.Clock();
+		// this.setupOrbitControls();
+		this.setupFlyControls();
 	};
 
 	/**
-     *
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupFlyControls = () => {
+        this.controls = new FlyControls(this.camera, this.mount);
+		this.controls.dragToLook = true;
+		this.controls.movementSpeed = 10;
+		this.controls.rollSpeed = 0.1;
+		this.controls.update(1);
+        this.clock = new THREE.Clock();
+	}
+
+	/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupOrbitControls = () => {
+		this.controls = new OrbitControls(this.camera, this.mount);
+		this.controls.enableKeys = true;
+		this.controls.enablePan = true;
+        this.clock = new THREE.Clock();
+		this.controls.update();
+	}
+
+	/**
+	 *
+     * Instatiate the renderer
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupRayCaster = () => {
+		this.raycaster = new THREE.Raycaster();
+	};
+
+	/**
+     * Instatiate the renderer
      *
      * @memberof CubeEnvironment
      */
@@ -126,6 +177,25 @@ class PortfolioEnvironment extends Component {
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setClearColor(Colours.light_purple);
 		this.renderer.setSize(this.width, this.height);
+	};
+
+	/**
+	 * Instatiate the mouse property
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupMouse = () => {
+		this.mouse = new THREE.Vector2();
+	}
+
+	/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setMouse = event => {
+		this.mouse.x = (event.clientX / this.mount.clientWidth) * 2 - 1;
+		this.mouse.y = -(event.clientY / this.mount.clientHeight) * 2 + 1;
 	};
 
 	/**
@@ -153,7 +223,6 @@ class PortfolioEnvironment extends Component {
 			side: THREE.DoubleSide,
 			flatShading: true
 		});
-
 		this.cube = new THREE.Mesh(geometry, material);
 		this.cube.position.set(0, 2.5, 0);
 		this.scene.add(this.cube);
@@ -181,15 +250,18 @@ class PortfolioEnvironment extends Component {
 
 	addModel = async (object) => {
 		const loader = new GLTFLoader(this.manager);
-		this.model = new THREE.Object3D();
+		let model = new THREE.Object3D();
 		// console.log("OBJ", object)
 
 		loader.load(object, (gltf) => {
-			this.model = gltf.scene;
+			model = gltf.scene;
 			// mesh.name = name;
-			this.model.position.z = 0;
+			model.position.x = 0;
+			model.position.y = 0;
+			model.position.z = 0;
 
-			this.scene.add(this.model);
+			this.clickableObjects.push(model);
+			this.scene.add(model);
 		});
 	};
 
@@ -204,6 +276,11 @@ class PortfolioEnvironment extends Component {
 		this.scene.add(axesHelper);
 	};
 
+	/**
+	 * This is helper function to render a grid
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	addGridHelper = () => {
 		const size = 100;
 		const divisions = 100;
@@ -226,6 +303,16 @@ class PortfolioEnvironment extends Component {
 		this.scene.add(arrowHelper);
 	};
 
+
+	// Loading Logic
+	
+	/**
+	 * This is setting up the Loading manager
+	 * and assigning onStart, onProgress, onLoad
+	 * onError
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	setupLoadingManager = () => {
 		this.manager = new THREE.LoadingManager();
 		this.manager.onStart = this.loadStart;
@@ -233,6 +320,13 @@ class PortfolioEnvironment extends Component {
 		this.manager.onLoad = this.loadFinished;
 		this.manager.onError = this.loadError;
 	};
+
+	/**
+	 * This function is called once the loading process
+	 * has started
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	loadStart = (url, itemsLoaded, itemsTotal) => {
 		this.setState({
 			itemsLoaded: itemsLoaded,
@@ -240,6 +334,12 @@ class PortfolioEnvironment extends Component {
 		});
 	};
 
+	/**
+	 * This function is called every time there's an update 
+	 * on the loading process
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	loadProgressing = (url, itemsLoaded, itemsTotal) => {
 		this.setState({
 			itemsLoaded: itemsLoaded,
@@ -247,17 +347,23 @@ class PortfolioEnvironment extends Component {
 		});
 	};
 
+	/**
+	 * This function is called every time loading is finished
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	loadFinished = () => {
 		this.setState({
 			hasLoaded: true
 		});
-		console.log('HAS LOADED');
-		// this.onWindowResize();
 	};
 
 	/**
-     *
-     *
+     * This is the function that is running the environment.
+     * The window.requestAnimationFrame() method tells the browser
+	 * that you wish to perform an animation and requests that the 
+	 * browser calls a specified function to update an animation 
+	 * before the next repaint
      * @memberof CubeEnvironment
      */
 	startAnimationLoop = () => {
@@ -270,20 +376,40 @@ class PortfolioEnvironment extends Component {
 		// 	this.model.rotation.x += 0.01;
 		// 	this.model.rotation.y += 0.01;
 		// }
-        let delta = this.clock.getDelta();
+
+		// This is required the FlyControls to work
+		if(this.clock){
+			let delta = this.clock.getDelta();
+			this.controls.update( delta );
+		}
+
+		
 		this.renderer.render(this.scene, this.camera);
-        this.controls.update( delta );
 		// The window.requestAnimationFrame() method tells the browser that you wish to perform
 		// an animation and requests that the browser call a specified function
 		// to update an animation before the next repaint
 		this.animationID = window.requestAnimationFrame(this.startAnimationLoop);
 	};
 
+
+	// Interactions
+
 	/**
      *
      *
      * @memberof CubeEnvironment
      */
+
+	addEventListeners = () => {
+		document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
+		window.addEventListener("resize", this.handleWindowResize, false);
+	};
+
+	removeEventListeners = () => {
+		document.removeEventListener("dblclick", this.onDocumentDoubleClick);
+		window.removeEventListener("resize", this.onWindowResize);
+	};
+
 	handleWindowResize = () => {
 		const width = this.mount.clientWidth;
 		const height = this.mount.clientHeight;
@@ -295,6 +421,27 @@ class PortfolioEnvironment extends Component {
 		// .updateProjectionMatrix for the changes to take effect.
 		this.camera.updateProjectionMatrix();
 	};
+
+
+	/**
+	 * 
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	onDocumentDoubleClick = event => {
+		if (!this.state.pause) {
+		  this.setMouse(event);
+		  this.raycaster.setFromCamera(this.mouse, this.camera);
+		  let intersects = this.raycaster.intersectObjects(this.clickableObjects);
+		  if (intersects.length > 0) {
+			let mesh = this.intersects[0];
+			console.log("MESH")
+			// if (mesh.object.callback && mesh.object.model_id && this.canOpen(mesh.object)) {
+			//   mesh.object.callback(mesh.object.model_id, mesh.object.model_type);
+			// }
+		  }
+		}
+	  };
 
 	/**
      *
