@@ -6,8 +6,18 @@ import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
 import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb';
+import Overlay from '../Components/Overlay/Overlay';
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
+
+
+
+
+const ProjectName = {
+	PROJECT_ONE: 'PROJECT_ONE',
+	PROJECT_TWO: 'PROJECT_TWO',
+	PROJECT_THREE: 'PROJECT_THREE',
+}
 /**
  * PortfolioEnvironment.js
  * 
@@ -40,7 +50,8 @@ class PortfolioEnvironment extends Component {
 			itemsLoaded: 0,
 			itemsTotal: 0,
 			showOverlay: false,
-			pause: false
+			overlayProject: null,
+			pause: false,
 		};
 	}
 
@@ -82,6 +93,7 @@ class PortfolioEnvironment extends Component {
 		this.setupRenderer();
 		this.setupLoadingManager();
 		this.setupRayCaster()
+		this.setupMouse()
 		this.setupFog();
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
 	};
@@ -127,8 +139,8 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	setupControls = () => {
-		// this.setupOrbitControls();
-		this.setupFlyControls();
+		this.setupOrbitControls();
+		// this.setupFlyControls();
 	};
 
 	/**
@@ -206,7 +218,9 @@ class PortfolioEnvironment extends Component {
 	populateScene = () => {
 		// this.addCube();
 		this.addLights();
-		this.addModel(AstronautGLB);
+		this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ProjectName.PROJECT_ONE);
+		this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ProjectName.PROJECT_TWO);
+		this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ProjectName.PROJECT_THREE);
 		this.addHelpers();
 	};
 
@@ -248,7 +262,7 @@ class PortfolioEnvironment extends Component {
 		this.scene.add(lights[2]);
 	};
 
-	addModel = async (object) => {
+	addModel = (object, position, project) => {
 		const loader = new GLTFLoader(this.manager);
 		let model = new THREE.Object3D();
 		// console.log("OBJ", object)
@@ -256,9 +270,7 @@ class PortfolioEnvironment extends Component {
 		loader.load(object, (gltf) => {
 			model = gltf.scene;
 			// mesh.name = name;
-			model.position.x = 0;
-			model.position.y = 0;
-			model.position.z = 0;
+			model.position.set(position.x, position.y, position.z);
 
 			this.clickableObjects.push(model);
 			this.scene.add(model);
@@ -392,6 +404,12 @@ class PortfolioEnvironment extends Component {
 	};
 
 
+	hideOverlay = () => {
+		this.setState({
+			showOverlay: false
+		})
+	}
+
 	// Interactions
 
 	/**
@@ -434,8 +452,11 @@ class PortfolioEnvironment extends Component {
 		  this.raycaster.setFromCamera(this.mouse, this.camera);
 		  let intersects = this.raycaster.intersectObjects(this.clickableObjects);
 		  if (intersects.length > 0) {
-			let mesh = this.intersects[0];
-			console.log("MESH")
+			let mesh = intersects[0];
+			console.log("MESH", mesh)
+			this.setState({
+				showOverlay: true
+			})
 			// if (mesh.object.callback && mesh.object.model_id && this.canOpen(mesh.object)) {
 			//   mesh.object.callback(mesh.object.model_id, mesh.object.model_type);
 			// }
@@ -450,7 +471,14 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	render() {
-		return <TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />;
+		return (
+			<React.Fragment>
+				<Overlay show={this.state.showOverlay} hide={this.hideOverlay} />
+				<TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />
+
+			</React.Fragment>
+		)
+		;
 	}
 }
 
