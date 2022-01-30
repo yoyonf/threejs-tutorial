@@ -7,17 +7,15 @@ import { Colours } from '../Components/Global/Global.styles';
 import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb';
 import Overlay from '../Components/Overlay/Overlay';
+import {OverlayItem} from '../Utility/Models/OverlayItem';
+import { ITEM_LIST } from '../Utility/Data/ItemList';
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
 
 
 
 
-const ProjectName = {
-	PROJECT_ONE: 'PROJECT_ONE',
-	PROJECT_TWO: 'PROJECT_TWO',
-	PROJECT_THREE: 'PROJECT_THREE',
-}
+
 /**
  * PortfolioEnvironment.js
  * 
@@ -42,6 +40,8 @@ class PortfolioEnvironment extends Component {
 	mouse;
 
 	clickableObjects = [];
+
+
 
 	constructor(props) {
 		super(props);
@@ -81,7 +81,8 @@ class PortfolioEnvironment extends Component {
 	}
 
 	/**
-     *
+     * This function setup the THREE.Scene
+	 * and calls other setup function
      *
      * @memberof CubeEnvironment
      */
@@ -99,12 +100,12 @@ class PortfolioEnvironment extends Component {
 	};
 
 	/**
-	 *
+	 * This adds fog to the scene
 	 *
 	 * @memberof PortfolioEnvironment
 	 */
 	setupFog = () => {
-		this.scene.fog = new THREE.FogExp2(new THREE.Color("white"), 0.001);
+		this.scene.fog = new THREE.FogExp2(new THREE.Color("white"), 0.1); // Color, Density
 	}
 
 	/**
@@ -134,8 +135,7 @@ class PortfolioEnvironment extends Component {
 	};
 
 	/**
-     * OrbitControls allow a camera to orbit around the object
-     * https://threejs.org/docs/#examples/controls/OrbitControls
+     * 
      * @memberof CubeEnvironment
      */
 	setupControls = () => {
@@ -158,7 +158,8 @@ class PortfolioEnvironment extends Component {
 	}
 
 	/**
-	 *
+	 * OrbitControls allow a camera to orbit around the object
+     * https://threejs.org/docs/#examples/controls/OrbitControls
 	 *
 	 * @memberof PortfolioEnvironment
 	 */
@@ -218,9 +219,9 @@ class PortfolioEnvironment extends Component {
 	populateScene = () => {
 		// this.addCube();
 		this.addLights();
-		this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ProjectName.PROJECT_ONE);
-		this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ProjectName.PROJECT_TWO);
-		this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ProjectName.PROJECT_THREE);
+		this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
+		this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
+		this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
 		this.addHelpers();
 	};
 
@@ -262,15 +263,30 @@ class PortfolioEnvironment extends Component {
 		this.scene.add(lights[2]);
 	};
 
+	/**
+	 * Loads model and adds to the scene
+	 * 
+	 * Requires Object url, THREE.Vector3 and project name
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	addModel = (object, position, project) => {
+		// Add manager to loader
 		const loader = new GLTFLoader(this.manager);
+		// Instatiate new Object3D for the model
 		let model = new THREE.Object3D();
 		// console.log("OBJ", object)
 
+		// Load the model using call back
 		loader.load(object, (gltf) => {
 			model = gltf.scene;
-			// mesh.name = name;
+			// Sets position
 			model.position.set(position.x, position.y, position.z);
+			model.userData.project = project;
+			model.traverse((object) => {
+				object.userData.project = project
+			})
+			model.project = project;
 
 			this.clickableObjects.push(model);
 			this.scene.add(model);
@@ -428,6 +444,11 @@ class PortfolioEnvironment extends Component {
 		window.removeEventListener("resize", this.onWindowResize);
 	};
 
+	/**
+	 * This is calleed when the resize event is triggered
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	handleWindowResize = () => {
 		const width = this.mount.clientWidth;
 		const height = this.mount.clientHeight;
@@ -440,26 +461,31 @@ class PortfolioEnvironment extends Component {
 		this.camera.updateProjectionMatrix();
 	};
 
-
 	/**
-	 * 
+	 * This is calleed when the dblclick event is triggered
 	 *
 	 * @memberof PortfolioEnvironment
 	 */
 	onDocumentDoubleClick = event => {
+		// Check if environment is not in pause state
 		if (!this.state.pause) {
 		  this.setMouse(event);
+
+		  // Update the ray with a new origin and direction.
 		  this.raycaster.setFromCamera(this.mouse, this.camera);
+
+		  //Checks all intersection between the ray and the objects with or without the descendants. 
+		  // Intersections are returned sorted by distance, closest first. 
 		  let intersects = this.raycaster.intersectObjects(this.clickableObjects);
+		  console.log("clickableObjects", this.clickableObjects)
 		  if (intersects.length > 0) {
 			let mesh = intersects[0];
-			console.log("MESH", mesh)
+			console.log(mesh.object);
+			// Set the overlay and project
 			this.setState({
-				showOverlay: true
+				showOverlay: true,
+				overlayProject: mesh.object.userData.project
 			})
-			// if (mesh.object.callback && mesh.object.model_id && this.canOpen(mesh.object)) {
-			//   mesh.object.callback(mesh.object.model_id, mesh.object.model_type);
-			// }
 		  }
 		}
 	  };
@@ -473,7 +499,7 @@ class PortfolioEnvironment extends Component {
 	render() {
 		return (
 			<React.Fragment>
-				<Overlay show={this.state.showOverlay} hide={this.hideOverlay} />
+				<Overlay project={this.state.overlayProject} show={this.state.showOverlay} hide={this.hideOverlay} />
 				<TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />
 
 			</React.Fragment>
