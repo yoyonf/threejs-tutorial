@@ -26,7 +26,8 @@ const VideoIFrame = styled.iframe`
 const Title = styled.h1`color: blue;`;
 
 const CloseOverlay = styled.p`
-    color: blue;
+	color: blue;
+	cursor: pointer;
 `
 const Overlay = (props) => {
 	const onClick = () => {
