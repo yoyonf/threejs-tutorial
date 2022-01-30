@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
 import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb'
-import Model from '../Assets/Models/DIP93js.glb'
+import Model from '../Assets/Models/Chair.glb'
 
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
