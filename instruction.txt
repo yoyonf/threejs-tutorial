@@ -1,0 +1,17 @@
+1. Clone repository
+git clone https://github.com/t-lawan/threejs-tutorial.git in terminal
+or github desktop
+
+2. Go to directory of cloned repository
+cd threejs-tutorial
+
+3. Install package dependencies
+npm install
+
+4. Run the app in the development mode.
+npm run start
+
+5. If the broswer did not open automatically, go to http://localhost:3000/ in browser
+
+6. Open threejs-tutorial in text editor of preference (ideally visual studio code)
+
