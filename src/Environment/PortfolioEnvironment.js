@@ -68,7 +68,6 @@ class PortfolioEnvironment extends Component {
      */
 	componentWillUnmount() {
 		this.removeEventListeners();
-		window.removeEventListener('resize', this.handleWindowResize);
 		window.cancelAnimationFrame(this.animationID);
 		this.controls.dispose();
 	}
@@ -197,7 +196,7 @@ class PortfolioEnvironment extends Component {
      */
 	setupRenderer = () => {
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setClearColor(Colours.light_purple);
+		this.renderer.setClearColor(new THREE.Color("rgb(240, 235, 255)"));
 		this.renderer.setSize(this.width, this.height);
 	};
 
