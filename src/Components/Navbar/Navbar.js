@@ -35,10 +35,10 @@ const Navbar = () => {
             to: '/cube',
             title: 'Cube'
         },
-        {
-            to: '/portfolio',
-            title: 'Portfolio'
-        },
+        // {
+        //     to: '/portfolio',
+        //     title: 'Portfolio'
+        // },
     ]
 
 
