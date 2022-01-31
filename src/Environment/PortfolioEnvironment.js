@@ -94,10 +94,26 @@ class PortfolioEnvironment extends Component {
 		// this.setupLoadingManager();
 		// this.setupRayCaster()
 		// this.setupMouse()
-		// this.setupFog();
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
 	};
 
+	/**
+     *
+     *
+     * @memberof CubeEnvironment
+     */
+	populateScene = () => {
+		this.addHelpers()
+		this.addCube(new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
+		this.addCube( new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
+		this.addCube(new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
+		this.addLights();
+		// this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
+		// this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
+		// this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
+		// this.setupFog();
+
+	};
 	/**
 	 * This adds fog to the scene
 	 *
@@ -215,22 +231,6 @@ class PortfolioEnvironment extends Component {
      *
      * @memberof CubeEnvironment
      */
-	populateScene = () => {
-		this.addHelpers()
-		this.addCube(new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
-		this.addCube( new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
-		this.addCube(new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
-		this.addLights();
-		// this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
-		// this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
-		// this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
-	};
-
-	/**
-     *
-     *
-     * @memberof CubeEnvironment
-     */
 	addCube = (position, project) => {
 		// Create geometry
 		const geometry = new THREE.BoxGeometry(2, 2, 2);
@@ -317,7 +317,6 @@ class PortfolioEnvironment extends Component {
 	addHelpers = () => {
 		this.addAxesHelper();
         this.addGridHelper();
-        this.addArrowHelper();
 	};
 
 	/**
@@ -342,21 +341,6 @@ class PortfolioEnvironment extends Component {
 		const gridHelper = new THREE.GridHelper(size, divisions);
 		this.scene.add(gridHelper);
 	};
-
-	addArrowHelper = () => {
-		const dir = new THREE.Vector3(1, 2, 0);
-
-		//normalize the direction vector (convert to vector of length 1)
-		dir.normalize();
-
-		const origin = new THREE.Vector3(0, 0, 0);
-		const length = 1;
-		const hex = 0xffff00;
-
-		const arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
-		this.scene.add(arrowHelper);
-	};
-
 
 	// Loading Logic
 	
@@ -460,7 +444,7 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	addEventListeners = () => {
-		document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
+		// document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
 		window.addEventListener("resize", this.handleWindowResize, false);
 	};
 
@@ -470,7 +454,7 @@ class PortfolioEnvironment extends Component {
 	 * @memberof PortfolioEnvironment
 	 */
 	removeEventListeners = () => {
-		document.removeEventListener("dblclick", this.onDocumentDoubleClick);
+		// document.removeEventListener("dblclick", this.onDocumentDoubleClick);
 		window.removeEventListener("resize", this.onWindowResize);
 	};
 
