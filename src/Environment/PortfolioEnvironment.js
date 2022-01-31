@@ -441,6 +441,11 @@ class PortfolioEnvironment extends Component {
 	};
 
 
+	/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	hideOverlay = () => {
 		this.setState({
 			showOverlay: false
@@ -450,16 +455,20 @@ class PortfolioEnvironment extends Component {
 	// Interactions
 
 	/**
-     *
+     * EventListeners
      *
      * @memberof CubeEnvironment
      */
-
 	addEventListeners = () => {
 		document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
 		window.addEventListener("resize", this.handleWindowResize, false);
 	};
 
+	/**
+	 * EventListeners
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	removeEventListeners = () => {
 		document.removeEventListener("dblclick", this.onDocumentDoubleClick);
 		window.removeEventListener("resize", this.onWindowResize);
