@@ -7,7 +7,6 @@ import { Colours } from '../Components/Global/Global.styles';
 import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb';
 import Overlay from '../Components/Overlay/Overlay';
-import {OverlayItem} from '../Utility/Models/OverlayItem';
 import { ITEM_LIST } from '../Utility/Data/ItemList';
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
@@ -92,10 +91,10 @@ class PortfolioEnvironment extends Component {
 		this.setupCamera();
 		this.setupControls();
 		this.setupRenderer();
-		this.setupLoadingManager();
-		this.setupRayCaster()
-		this.setupMouse()
-		this.setupFog();
+		// this.setupLoadingManager();
+		// this.setupRayCaster()
+		// this.setupMouse()
+		// this.setupFog();
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
 	};
 
@@ -217,12 +216,14 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		// this.addCube();
+		this.addHelpers()
+		this.addCube(new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
+		this.addCube( new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
+		this.addCube(new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
 		this.addLights();
-		this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
-		this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
-		this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
-		this.addHelpers();
+		// this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
+		// this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
+		// this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
 	};
 
 	/**
@@ -230,21 +231,34 @@ class PortfolioEnvironment extends Component {
      *
      * @memberof CubeEnvironment
      */
-	addCube = () => {
+	addCube = (position, project) => {
+		// Create geometry
 		const geometry = new THREE.BoxGeometry(2, 2, 2);
+		// Create Material
 		const material = new THREE.MeshPhongMaterial({
 			color: 'rgb(54, 54, 82)',
 			emissive: 'rgb(54, 54, 82)',
 			side: THREE.DoubleSide,
 			flatShading: true
 		});
-		this.cube = new THREE.Mesh(geometry, material);
-		this.cube.position.set(0, 2.5, 0);
-		this.scene.add(this.cube);
+		// Create Cube using geometry and material
+		let cube = new THREE.Mesh(geometry, material);
+
+		// Set cube position
+		cube.position.set(position.x, position.y, position.z);
+
+		// Add project to cube user data
+		cube.userData.project = project;
+
+		// Add clickable objects
+		this.clickableObjects.push(cube);
+
+		// Add cube to scene
+		this.scene.add(cube);
 	};
 
 	/**
-     *
+     * Creates THREE.PointLight
      *
      * @memberof CubeEnvironment
      */
@@ -280,25 +294,37 @@ class PortfolioEnvironment extends Component {
 		// Load the model using call back
 		loader.load(object, (gltf) => {
 			model = gltf.scene;
-			// Sets position
+			
+			// Sets position of Model
 			model.position.set(position.x, position.y, position.z);
+			
+			// Assign project data
 			model.userData.project = project;
 			model.traverse((object) => {
 				object.userData.project = project
 			})
-			model.project = project;
 
 			this.clickableObjects.push(model);
 			this.scene.add(model);
 		});
 	};
 
+	/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	addHelpers = () => {
 		this.addAxesHelper();
         this.addGridHelper();
         this.addArrowHelper();
 	};
 
+	/**
+	 * 
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
 	addAxesHelper = () => {
 		const axesHelper = new THREE.AxesHelper(5);
 		this.scene.add(axesHelper);
@@ -312,7 +338,7 @@ class PortfolioEnvironment extends Component {
 	addGridHelper = () => {
 		const size = 100;
 		const divisions = 100;
-
+		// Create Gridhelper with size and divisions
 		const gridHelper = new THREE.GridHelper(size, divisions);
 		this.scene.add(gridHelper);
 	};
@@ -395,11 +421,6 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	startAnimationLoop = () => {
-		if (this.cube) {
-			this.cube.rotation.x += 0.01;
-			this.cube.rotation.y += 0.01;
-		}
-
 		// if (this.model) {
 		// 	this.model.rotation.x += 0.01;
 		// 	this.model.rotation.y += 0.01;
