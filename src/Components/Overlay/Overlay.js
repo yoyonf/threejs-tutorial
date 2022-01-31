@@ -29,12 +29,11 @@ const CloseOverlay = styled.p`
 	color: blue;
 	cursor: pointer;
 `
+
 const Overlay = (props) => {
 	const onClick = () => {
 		props.hide();
 	};
-
-	console.log('OVERLAY', props.project);
 	return (
 		<OverlayWrapper show={props.show} >
 			<FlexWrapper>
