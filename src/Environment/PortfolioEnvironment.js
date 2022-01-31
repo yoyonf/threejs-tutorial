@@ -10,11 +10,6 @@ import Overlay from '../Components/Overlay/Overlay';
 import { ITEM_LIST } from '../Utility/Data/ItemList';
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
-
-
-
-
-
 /**
  * PortfolioEnvironment.js
  * 
@@ -64,7 +59,6 @@ class PortfolioEnvironment extends Component {
 		this.populateScene();
 		this.startAnimationLoop();
 		this.addEventListeners();
-		// window.addEventListener('resize', this.handleWindowResize);
 	}
 
 	/**
