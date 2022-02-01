@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, Component } from 'react';
 import * as THREE from 'three';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
-import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb'
 import Model from '../Assets/Models/Chair.glb'
 
@@ -128,10 +128,9 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		// this.addCube();
+		this.addCube();
         this.addLights();
         // this.addModel(AstronautGLB);
-        this.addModel(Model);
 	};
 
 	/**
@@ -176,10 +175,9 @@ class CubeEnvironment extends Component {
 	addModel = async (object) => {
         const loader = new GLTFLoader(this.manager);
         this.model = new THREE.Object3D();
-        // console.log("OBJ", object)
 
         loader.load(object, gltf => {
-            this.model = gltf.scene;
+			this.model = gltf.scene;
             // mesh.name = name;
             this.model.position.z = 0;
 
