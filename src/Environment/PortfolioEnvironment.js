@@ -4,10 +4,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
-import { GLTFLoader } from '../Utility/Loader/GLTFLoader';
 import AstronautGLB from '../Assets/Models/Astronaut.glb';
 import Overlay from '../Components/Overlay/Overlay';
 import { ITEM_LIST } from '../Utility/Data/ItemList';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
 /**
