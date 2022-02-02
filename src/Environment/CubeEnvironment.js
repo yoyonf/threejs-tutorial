@@ -120,11 +120,11 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		this.addHelpers();
+		// this.addHelpers();
 		this.addLights();
 
-		// this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
-		this.addModel(Chair, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
+		this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
+		// this.addModel(Chair, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
 
 		// this.setupFog();
 	};
@@ -211,7 +211,7 @@ class CubeEnvironment extends Component {
 		let pixelPass = new ShaderPass( PixelShader );
 		 pixelPass.uniforms[ 'resolution' ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
 		 pixelPass.uniforms[ 'resolution' ].value.multiplyScalar( window.devicePixelRatio );
-		 pixelPass.uniforms[ 'pixelSize' ].value = 1; // Between 2 and 32
+		 pixelPass.uniforms[ 'pixelSize' ].value = 4; // Between 2 and 32
 		this.composer.addPass(pixelPass);
 
 	};
