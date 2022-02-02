@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef, Component } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { PixelShader } from 'three/examples/jsm/shaders/PixelShader';
+
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
 import AstronautGLB from '../Assets/Models/Astronaut.glb';
 import Overlay from '../Components/Overlay/Overlay';
 import { ITEM_LIST } from '../Utility/Data/ItemList';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
@@ -29,14 +36,13 @@ class PortfolioEnvironment extends Component {
 	animationID;
 	mount;
 	cube;
-    model;
+	model;
 	clock;
 	raycaster;
 	mouse;
-
+	composer;
+	unrealBloomPass;
 	clickableObjects = [];
-
-
 
 	constructor(props) {
 		super(props);
@@ -46,7 +52,7 @@ class PortfolioEnvironment extends Component {
 			itemsTotal: 0,
 			showOverlay: false,
 			overlayProject: null,
-			pause: false,
+			pause: false
 		};
 	}
 
@@ -85,6 +91,8 @@ class PortfolioEnvironment extends Component {
 		this.setupCamera();
 		this.setupControls();
 		this.setupRenderer();
+
+		this.setupPostProcessing();
 		// this.setupLoadingManager();
 		// this.setupRayCaster()
 		// this.setupMouse()
@@ -97,16 +105,17 @@ class PortfolioEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		this.addHelpers()
-		this.addCube(new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
-		this.addCube( new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
-		this.addCube(new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
+		this.addHelpers();
+
+		// Add Cubes
+		this.addCube(new THREE.Vector3(10, 0, -5), ITEM_LIST.SOY_CUBA);
+		this.addCube(new THREE.Vector3(-20, 5, -30), ITEM_LIST.MONA_LISA);
+		this.addCube(new THREE.Vector3(20, 5, -26), ITEM_LIST.PHARCYDE);
 		this.addLights();
 		// this.addModel(AstronautGLB, new THREE.Vector3(0,0,0), ITEM_LIST.ITEM_ONE);
 		// this.addModel(AstronautGLB, new THREE.Vector3(-20,5,-30), ITEM_LIST.ITEM_TWO);
 		// this.addModel(AstronautGLB, new THREE.Vector3(20,5,-26), ITEM_LIST.ITEM_THREE);
 		// this.setupFog();
-
 	};
 	/**
 	 * This adds fog to the scene
@@ -114,8 +123,8 @@ class PortfolioEnvironment extends Component {
 	 * @memberof PortfolioEnvironment
 	 */
 	setupFog = () => {
-		this.scene.fog = new THREE.FogExp2(new THREE.Color("white"), 0.1); // Color, Density
-	}
+		this.scene.fog = new THREE.FogExp2(new THREE.Color('white'), 0.1); // Color, Density
+	};
 
 	/**
      * This function creates the PerspectiveCamera
@@ -158,13 +167,13 @@ class PortfolioEnvironment extends Component {
 	 * @memberof PortfolioEnvironment
 	 */
 	setupFlyControls = () => {
-        this.controls = new FlyControls(this.camera, this.mount);
+		this.controls = new FlyControls(this.camera, this.mount);
 		this.controls.dragToLook = true;
 		this.controls.movementSpeed = 10;
 		this.controls.rollSpeed = 0.1;
 		this.controls.update(1);
-        this.clock = new THREE.Clock();
-	}
+		this.clock = new THREE.Clock();
+	};
 
 	/**
 	 * OrbitControls allow a camera to orbit around the object
@@ -176,9 +185,9 @@ class PortfolioEnvironment extends Component {
 		this.controls = new OrbitControls(this.camera, this.mount);
 		this.controls.enableKeys = true;
 		this.controls.enablePan = true;
-        this.clock = new THREE.Clock();
+		this.clock = new THREE.Clock();
 		this.controls.update();
-	}
+	};
 
 	/**
 	 *
@@ -197,8 +206,38 @@ class PortfolioEnvironment extends Component {
      */
 	setupRenderer = () => {
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setClearColor(new THREE.Color("rgb(240, 235, 255)"));
+		this.renderer.setClearColor(new THREE.Color('rgb(240, 235, 255)'));
 		this.renderer.setSize(this.width, this.height);
+	};
+
+	setupPostProcessing = () => {
+		this.composer = new EffectComposer(this.renderer);
+		this.composer.addPass(new RenderPass(this.scene, this.camera));
+
+		// const params = {
+		// 	exposure: 2.0,
+		// 	bloomStrength: 3.0,
+		// 	bloomThreshold: 2.0,
+		// 	bloomRadius: 0.2
+		// };
+		// this.unrealBloomPass = new UnrealBloomPass(
+		// 	new THREE.Vector2(window.innerWidth, window.innerHeight),
+		// 	1.5,
+		// 	0.4,
+		// 	0.85
+		// );
+		// this.unrealBloomPass.threshold = params.bloomThreshold;
+		// this.unrealBloomPass.strength = params.bloomStrength;
+		// this.unrealBloomPass.radius = params.bloomRadius;
+		// this.renderer.toneMappingExposure = params.exposure;
+
+
+		let pixelPass = new ShaderPass( PixelShader );
+		 pixelPass.uniforms[ 'resolution' ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+		 pixelPass.uniforms[ 'resolution' ].value.multiplyScalar( window.devicePixelRatio );
+		 pixelPass.uniforms[ 'pixelSize' ].value = 4;
+		this.composer.addPass(pixelPass);
+
 	};
 
 	/**
@@ -208,15 +247,15 @@ class PortfolioEnvironment extends Component {
 	 */
 	setupMouse = () => {
 		this.mouse = new THREE.Vector2();
-	}
+	};
 
 	/**
 	 *
 	 *
 	 * @memberof PortfolioEnvironment
 	 */
-	setMouse = event => {
-		this.mouse.x = (event.clientX / this.mount.clientWidth) * 2 - 1;
+	setMouse = (event) => {
+		this.mouse.x = event.clientX / this.mount.clientWidth * 2 - 1;
 		this.mouse.y = -(event.clientY / this.mount.clientHeight) * 2 + 1;
 	};
 
@@ -262,9 +301,9 @@ class PortfolioEnvironment extends Component {
 		lights[1] = new THREE.PointLight(0xffffff, 1, 0);
 		lights[2] = new THREE.PointLight(0xffffff, 1, 0);
 
-		lights[0].position.set(0, 200, 0);
-		lights[1].position.set(100, 200, 100);
-		lights[2].position.set(-100, -200, -100);
+		lights[0].position.set(0, 100, 0);
+		lights[1].position.set(100, 100, 100);
+		lights[2].position.set(-100, -100, -100);
 
 		this.scene.add(lights[0]);
 		this.scene.add(lights[1]);
@@ -288,15 +327,15 @@ class PortfolioEnvironment extends Component {
 		// Load the model using call back
 		loader.load(object, (gltf) => {
 			model = gltf.scene;
-			
+
 			// Sets position of Model
 			model.position.set(position.x, position.y, position.z);
-			
+
 			// Assign project data
 			model.userData.project = project;
 			model.traverse((object) => {
-				object.userData.project = project
-			})
+				object.userData.project = project;
+			});
 
 			this.clickableObjects.push(model);
 			this.scene.add(model);
@@ -310,7 +349,7 @@ class PortfolioEnvironment extends Component {
 	 */
 	addHelpers = () => {
 		this.addAxesHelper();
-        this.addGridHelper();
+		this.addGridHelper();
 	};
 
 	/**
@@ -337,7 +376,7 @@ class PortfolioEnvironment extends Component {
 	};
 
 	// Loading Logic
-	
+
 	/**
 	 * This is setting up the Loading manager
 	 * and assigning onStart, onProgress, onLoad
@@ -405,19 +444,23 @@ class PortfolioEnvironment extends Component {
 		// }
 
 		// This is required the FlyControls to work
-		if(this.clock){
+		if (this.clock) {
 			let delta = this.clock.getDelta();
-			this.controls.update( delta );
+			this.controls.update(delta);
 		}
 
-		
-		this.renderer.render(this.scene, this.camera);
+		if(this.composer){
+			this.composer.render();
+		} else {
+			this.renderer.render(this.scene, this.camera);
+
+		}
+
 		// The window.requestAnimationFrame() method tells the browser that you wish to perform
 		// an animation and requests that the browser call a specified function
 		// to update an animation before the next repaint
 		this.animationID = window.requestAnimationFrame(this.startAnimationLoop);
 	};
-
 
 	/**
 	 *
@@ -427,8 +470,8 @@ class PortfolioEnvironment extends Component {
 	hideOverlay = () => {
 		this.setState({
 			showOverlay: false
-		})
-	}
+		});
+	};
 
 	// Interactions
 
@@ -439,7 +482,7 @@ class PortfolioEnvironment extends Component {
      */
 	addEventListeners = () => {
 		// document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
-		window.addEventListener("resize", this.handleWindowResize, false);
+		window.addEventListener('resize', this.handleWindowResize, false);
 	};
 
 	/**
@@ -449,7 +492,7 @@ class PortfolioEnvironment extends Component {
 	 */
 	removeEventListeners = () => {
 		// document.removeEventListener("dblclick", this.onDocumentDoubleClick);
-		window.removeEventListener("resize", this.onWindowResize);
+		window.removeEventListener('resize', this.onWindowResize);
 	};
 
 	/**
@@ -461,8 +504,13 @@ class PortfolioEnvironment extends Component {
 		const width = this.mount.clientWidth;
 		const height = this.mount.clientHeight;
 
-		this.renderer.setSize(width, height);
 		this.camera.aspect = width / height;
+
+		if (this.composer) {
+			this.composer.setSize(width, height);
+		} else {
+			this.renderer.setSize(width, height);
+		}
 
 		// Note that after making changes to most of camera properties you have to call
 		// .updateProjectionMatrix for the changes to take effect.
@@ -474,29 +522,29 @@ class PortfolioEnvironment extends Component {
 	 *
 	 * @memberof PortfolioEnvironment
 	 */
-	onDocumentDoubleClick = event => {
+	onDocumentDoubleClick = (event) => {
 		// Check if environment is not in pause state
 		if (!this.state.pause) {
-		  this.setMouse(event);
+			this.setMouse(event);
 
-		  // Update the ray with a new origin and direction.
-		  this.raycaster.setFromCamera(this.mouse, this.camera);
+			// Update the ray with a new origin and direction.
+			this.raycaster.setFromCamera(this.mouse, this.camera);
 
-		  //Checks all intersection between the ray and the objects with or without the descendants. 
-		  // Intersections are returned sorted by distance, closest first. 
-		  let intersects = this.raycaster.intersectObjects(this.clickableObjects);
-		  console.log("clickableObjects", this.clickableObjects)
-		  if (intersects.length > 0) {
-			let mesh = intersects[0];
-			console.log(mesh.object);
-			// Set the overlay and project
-			this.setState({
-				showOverlay: true,
-				overlayProject: mesh.object.userData.project
-			})
-		  }
+			//Checks all intersection between the ray and the objects with or without the descendants.
+			// Intersections are returned sorted by distance, closest first.
+			let intersects = this.raycaster.intersectObjects(this.clickableObjects);
+			console.log('clickableObjects', this.clickableObjects);
+			if (intersects.length > 0) {
+				let mesh = intersects[0];
+				console.log(mesh.object);
+				// Set the overlay and project
+				this.setState({
+					showOverlay: true,
+					overlayProject: mesh.object.userData.project
+				});
+			}
 		}
-	  };
+	};
 
 	/**
      *
@@ -509,10 +557,8 @@ class PortfolioEnvironment extends Component {
 			<React.Fragment>
 				<Overlay project={this.state.overlayProject} show={this.state.showOverlay} hide={this.hideOverlay} />
 				<TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />
-
 			</React.Fragment>
-		)
-		;
+		);
 	}
 }
 
