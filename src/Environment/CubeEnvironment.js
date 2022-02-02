@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
 import AstronautGLB from '../Assets/Models/Astronaut.glb'
-import Model from '../Assets/Models/Chair.glb'
+import Model from '../Assets/Models/car.glb'
 
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
@@ -128,9 +128,9 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		this.addCube();
+		// this.addCube();
         this.addLights();
-        // this.addModel(AstronautGLB);
+        this.addModel(Model);
 	};
 
 	/**
