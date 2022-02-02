@@ -1,11 +1,22 @@
 import React, { useState, useEffect, useRef, Component } from 'react';
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { PixelShader } from 'three/examples/jsm/shaders/PixelShader';
+
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
 import AstronautGLB from '../Assets/Models/Astronaut.glb'
+import Chair from '../Assets/Models/Chair.glb'
 import Model from '../Assets/Models/car.glb'
+import { ITEM_LIST } from '../Utility/Data/ItemList';
+import Overlay from '../Components/Overlay/Overlay';
 
 const TestEnvironmentWrapper = styled.div`height: 100vh;`;
 
@@ -24,18 +35,34 @@ class CubeEnvironment extends Component {
 	controls;
 	camera;
 	renderer;
+	composer;
+
 	animationID;
+
 	mount;
+
 	cube;
 	model;
+
+	clock;
+	raycaster;
+	mouse;
+
+	composer;
+
+
+	clickableObjects = [];
+
     
     constructor(props) {
         super(props);
         this.state = {
           hasLoaded: false,
           itemsLoaded: 0,
-          itemsTotal: 0,
-          showOverlay: false
+		  itemsTotal: 0,
+		  showOverlay: false,
+		  overlayProject: null,
+		  pause: false
         };
       }
 
@@ -48,7 +75,7 @@ class CubeEnvironment extends Component {
 		this.setupScene();
 		this.populateScene();
 		this.startAnimationLoop();
-		window.addEventListener('resize', this.handleWindowResize);
+		this.addEventListeners()
 	}
 
 	/**
@@ -57,7 +84,7 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	componentWillUnmount() {
-		window.removeEventListener('resize', this.handleWindowResize);
+		this.removeEventListeners();
 		window.cancelAnimationFrame(this.animationID);
 		this.controls.dispose();
 	}
@@ -72,9 +99,34 @@ class CubeEnvironment extends Component {
 		this.setDimensions();
 		this.setupCamera();
 		this.setupControls();
-        this.setupRenderer();
-        this.setupLoadingManager();
+		this.setupRenderer();
+		
+		// ADD MODELS
+		// this.setupLoadingManager();
+
+		// MAKE INTERACTIVE
+		// this.setupRayCaster()
+		// this.setupMouse()
+
+		// Add Post Processing
+		this.setupPostProcessing();
+
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
+	};
+
+	/**
+     *
+     *
+     * @memberof CubeEnvironment
+     */
+	populateScene = () => {
+		this.addHelpers();
+		this.addLights();
+
+		// this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
+		this.addModel(Chair, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
+
+		// this.setupFog();
 	};
 
 	/**
@@ -108,7 +160,36 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	setupControls = () => {
+		this.setupOrbitControls();
+		// this.setupFlyControls();
+	};
+
+		/**
+	 * OrbitControls allow a camera to orbit around the object
+     * https://threejs.org/docs/#examples/controls/OrbitControls
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupOrbitControls = () => {
 		this.controls = new OrbitControls(this.camera, this.mount);
+		this.controls.enableKeys = true;
+		this.controls.enablePan = true;
+		this.controls.autoRotateSpeed = 2.0;
+		this.controls.keyPanSpeed = 7.0;
+	};
+
+		/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupFlyControls = () => {
+		this.controls = new FlyControls(this.camera, this.mount);
+		this.controls.dragToLook = true;
+		this.controls.movementSpeed = 10;
+		this.controls.rollSpeed = 0.1;
+		this.controls.update(1);
+		this.clock = new THREE.Clock();
 	};
 
 	/**
@@ -118,19 +199,59 @@ class CubeEnvironment extends Component {
      */
 	setupRenderer = () => {
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setClearColor(Colours.light_purple);
+		this.renderer.setClearColor(new THREE.Color('rgb(240, 235, 255)'));
 		this.renderer.setSize(this.width, this.height);
 	};
 
+	setupPostProcessing = () => {
+		this.composer = new EffectComposer(this.renderer);
+		this.composer.addPass(new RenderPass(this.scene, this.camera));
+
+
+		let pixelPass = new ShaderPass( PixelShader );
+		 pixelPass.uniforms[ 'resolution' ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+		 pixelPass.uniforms[ 'resolution' ].value.multiplyScalar( window.devicePixelRatio );
+		 pixelPass.uniforms[ 'pixelSize' ].value = 1; // Between 2 and 32
+		this.composer.addPass(pixelPass);
+
+	};
+
+		/**
+	 * This adds fog to the scene
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupFog = () => {
+		this.scene.fog = new THREE.FogExp2(new THREE.Color('white'), 0.1); // Color, Density
+	};
+
 	/**
-     *
-     *
-     * @memberof CubeEnvironment
-     */
-	populateScene = () => {
-		// this.addCube();
-        this.addLights();
-        this.addModel(Model);
+	 *
+     * Instatiate the renderer
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupRayCaster = () => {
+		this.raycaster = new THREE.Raycaster();
+	};
+
+	/**
+	 * Instatiate the mouse property
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setupMouse = () => {
+		this.mouse = new THREE.Vector2();
+	};
+
+	/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	setMouse = (event) => {
+		this.mouse.x = event.clientX / this.mount.clientWidth * 2 - 1;
+		this.mouse.y = -(event.clientY / this.mount.clientHeight) * 2 + 1;
 	};
 
 	/**
@@ -138,22 +259,33 @@ class CubeEnvironment extends Component {
      *
      * @memberof CubeEnvironment
      */
-	addCube = () => {
+	addCube = (position, project) => {
+		// Create geometry
 		const geometry = new THREE.BoxGeometry(2, 2, 2);
+		// Create Material
 		const material = new THREE.MeshPhongMaterial({
-			color: 'rgb(54, 54, 82)',
-			emissive: 'rgb(54, 54, 82)',
+			color: new THREE.Color('rgb(54, 54, 82)'),
+			emissive: new THREE.Color('rgb(54, 54, 82)'),
 			side: THREE.DoubleSide,
 			flatShading: true
 		});
-
+		// Create Cube using geometry and material
 		this.cube = new THREE.Mesh(geometry, material);
-		this.cube.position.set(0, 2.5, 0);
+		this.cube.position.set(position.x, position.y, position.z);
+
+		
+		// Add project to cube user data
+		this.cube.userData.project = project;
+
+		// Add clickable objects
+		this.clickableObjects.push(this.cube);
+
+		// Add cube to scene
 		this.scene.add(this.cube);
 	};
 
 	/**
-     *
+     * Creates THREE.PointLight
      *
      * @memberof CubeEnvironment
      */
@@ -172,17 +304,72 @@ class CubeEnvironment extends Component {
 		this.scene.add(lights[2]);
 	};
 	
-	addModel = async (object) => {
-        const loader = new GLTFLoader(this.manager);
-        this.model = new THREE.Object3D();
+	/**
+	 * Loads model and adds to the scene
+	 * 
+	 * Requires Object url, THREE.Vector3 and project name
+	 *
+	 * @memberof CubeEnvironment
+	 */
+	addModel = async (object, position, project) => {
 
+		// Add manager to loader		
+		const loader = new GLTFLoader(this.manager);
+		// Instatiate new Object3D for the model		
+		this.model = new THREE.Object3D();
+		
+		// Load the model using call back
         loader.load(object, gltf => {
+			// Sets position of Model
 			this.model = gltf.scene;
-            // mesh.name = name;
-            this.model.position.z = 0;
+			// mesh.name = name;
+			// Sets position of Model		
+			this.model.position.set(position.x, position.y, position.z)
+			
+			// Assign project data
+			this.model.traverse((object) => {
+				object.userData.project = project;
+			});
 
+			// Add to clickable objects
+			this.clickableObjects.push(this.model);
+
+			// Add model to scene
             this.scene.add(this.model);
           });
+	};
+
+		/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	addHelpers = () => {
+		this.addAxesHelper();
+		this.addGridHelper();
+	};
+
+	/**
+	 * 
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	addAxesHelper = () => {
+		const axesHelper = new THREE.AxesHelper(5);
+		this.scene.add(axesHelper);
+	};
+
+	/**
+	 * This is helper function to render a grid
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	addGridHelper = () => {
+		const size = 100;
+		const divisions = 100;
+		// Create Gridhelper with size and divisions
+		const gridHelper = new THREE.GridHelper(size, divisions);
+		this.scene.add(gridHelper);
 	};
 
 	setupLoadingManager = () => {
@@ -192,6 +379,7 @@ class CubeEnvironment extends Component {
 		this.manager.onLoad = this.loadFinished;
 		this.manager.onError = this.loadError;
 	};
+	
 	loadStart = (url, itemsLoaded, itemsTotal) => {
 		this.setState({
 			itemsLoaded: itemsLoaded,
@@ -230,12 +418,53 @@ class CubeEnvironment extends Component {
 			this.model.rotation.y += 0.01;
 		}
 
-		this.renderer.render(this.scene, this.camera);
+		if(this.composer){
+			this.composer.render();
+		} else {
+			this.renderer.render(this.scene, this.camera);
+		}
 
 		// The window.requestAnimationFrame() method tells the browser that you wish to perform
 		// an animation and requests that the browser call a specified function
 		// to update an animation before the next repaint
 		this.animationID = window.requestAnimationFrame(this.startAnimationLoop);
+	};
+
+		/**
+	 *
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	hideOverlay = () => {
+		this.setState({
+			showOverlay: false,
+			pause: false
+		});
+	};
+
+
+	// Interactions
+
+	/**
+     * EventListeners
+     *
+     * @memberof CubeEnvironment
+     */
+	addEventListeners = () => {
+		// MAKE INTERACTIVE
+		// document.addEventListener("dblclick", this.onDocumentDoubleClick, false);
+		window.addEventListener('resize', this.handleWindowResize, false);
+	};
+
+	/**
+	 * EventListeners
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	removeEventListeners = () => {
+		// MAKE INTERACTIVE
+		// document.removeEventListener("dblclick", this.onDocumentDoubleClick);
+		window.removeEventListener('resize', this.handleWindowResize);
 	};
 
 	/**
@@ -256,13 +485,51 @@ class CubeEnvironment extends Component {
 	};
 
 	/**
+	 * This is calleed when the dblclick event is triggered
+	 *
+	 * @memberof PortfolioEnvironment
+	 */
+	onDocumentDoubleClick = (event) => {
+		// Check if environment is not in pause state
+		if (!this.state.pause) {
+			this.setMouse(event);
+
+			// Update the ray with a new origin and direction.
+			this.raycaster.setFromCamera(this.mouse, this.camera);
+
+			//Checks all intersection between the ray and the objects with or without the descendants.
+			// Intersections are returned sorted by distance, closest first.
+			let intersects = this.raycaster.intersectObjects(this.clickableObjects);
+			if (intersects.length > 0) {
+				let mesh = intersects[0];
+				console.log("YOUR MODEL WAS SELECTED");
+
+				// MAKE INTERACTIVE
+				// Set the overlay and project
+				// this.setState({
+				// 	pause: true,
+				// 	showOverlay: true,
+				// 	overlayProject: mesh.object.userData.project
+				// });
+			}
+		}
+	};
+
+	/**
      *
      *
      * @returns
      * @memberof CubeEnvironment
      */
 	render() {
-		return <TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />;
+		return (
+			<React.Fragment>
+				<Overlay project={this.state.overlayProject} show={this.state.showOverlay} hide={this.hideOverlay} />
+
+				<TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />;
+			</React.Fragment>
+		)
+		
 	}
 }
 
