@@ -52,10 +52,12 @@ npm run start
     - Go to addEventListener()
         - uncomment OnDocumentDoubleClick
 9. Uncomment addHelpers() in populateScene()
+
     PUSH TO GIT
 10. Investigate <Overlay />
 
 11. Update overlayItem property
+
     PUSH TO GIT
 12. Investigate <Overlay />
 
@@ -66,12 +68,15 @@ npm run start
     - Change the colours in setupRenderer(), setupFog() and addLights()
 
     PUSH TO GIT
+
+
     - Add post processing 
         - Go to setupScene 
         - Uncomment setupPostProcessing()
         Investigate setupPostProcessing()
 
     PUSH TO GIT
+    
 14. Connect to Netlify to publish website.
 
 
