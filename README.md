@@ -1,7 +1,7 @@
 ## Setting up the website locally
 
 1. Clone repository
-Use git to clone the repository using the command below:
+- Use git to clone the repository using the command below:
 
 
 
