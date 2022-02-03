@@ -82,6 +82,11 @@ npm run start
 
 14. **Connect to Netlify to publish website.**
 
+## References
+  - [Roadmap](https://roadmap.sh/)
+  - [ThreeJS](https://threejs.org)
+  - [React](https://reactjs.org/)
+
 
 ## Available Scripts
 
