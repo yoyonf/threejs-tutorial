@@ -12,13 +12,15 @@ import { PixelShader } from 'three/examples/jsm/shaders/PixelShader';
 
 import styled from 'styled-components';
 import { Colours } from '../Components/Global/Global.styles';
-import AstronautGLB from '../Assets/Models/Astronaut.glb'
-import Chair from '../Assets/Models/Chair.glb'
-import Model from '../Assets/Models/car.glb'
+
 import { ITEM_LIST } from '../Utility/Data/ItemList';
 import Overlay from '../Components/Overlay/Overlay';
 
-const TestEnvironmentWrapper = styled.div`height: 100vh;`;
+import AstronautGLB from '../Assets/Models/Astronaut.glb'
+import Chair from '../Assets/Models/Chair.glb'
+import Car from '../Assets/Models/car.glb'
+
+const CubeEnvironmentWrapper = styled.div`height: 100vh;`;
 
 /**
  * CubeEnvironment.js
@@ -49,7 +51,6 @@ class CubeEnvironment extends Component {
 	mouse;
 
 	composer;
-
 
 	clickableObjects = [];
 
@@ -124,7 +125,7 @@ class CubeEnvironment extends Component {
 		// this.addHelpers();
 		this.addLights();
 		this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
-		// this.addModel(Chair, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
+		// this.addModel(Car, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
 		// this.setupFog();
 	};
 
@@ -527,7 +528,7 @@ class CubeEnvironment extends Component {
 			<React.Fragment>
 				<Overlay project={this.state.overlayProject} show={this.state.showOverlay} hide={this.hideOverlay} />
 
-				<TestEnvironmentWrapper ref={(ref) => (this.mount = ref)} />;
+				<CubeEnvironmentWrapper ref={(ref) => (this.mount = ref)} />;
 			</React.Fragment>
 		)
 		
