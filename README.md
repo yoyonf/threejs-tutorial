@@ -3,10 +3,12 @@
 1. Clone repository
 Use git to clone the repository using the command below:
 
-```bash
+
+
+  - ```bash
 git clone https://github.com/t-lawan/threejs-tutorial.git
-```
-or use github desktop
+``` or use github desktop
+  - Fork the repository.
 
 2. Go to directory of cloned repository using the command below:
 ```bash
