@@ -122,7 +122,7 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	populateScene = () => {
-		// this.addHelpers();
+		this.addHelpers();
 		this.addLights();
 		this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
 		// this.addModel(Car, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
