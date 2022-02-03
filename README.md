@@ -26,6 +26,54 @@ npm run start
 
 5. If the broswer did not open automatically, go to http://localhost:3000/ in a web browser
 
+## Tutorial Plan
+
+6. Open the directory in a text editor (ideally visual studio code)
+
+- Look at the fundamental function that set up the environment: renderer, scene and camera
+  - setupScene()
+    - new THREE.Scene()
+    - setupCamera()
+    - setupRenderer()
+
+7. Replace Cube with model
+    - Copy model (glb) to src/Assets/Model folder
+    - Go populateScene() in Cube Environment
+    - Go through the addModel() function
+    - Uncomment setupLoadingManager() in setupScene()
+
+    PUSH TO GIT
+
+8. Make interactive
+    - Go to setupScene()
+        - Uncomment setupRayCaster()
+        - Uncomment setupMouse()
+        - 
+    - Go to addEventListener()
+        - uncomment OnDocumentDoubleClick
+9. Uncomment addHelpers() in populateScene()
+    PUSH TO GIT
+10. Investigate <Overlay />
+
+11. Update overlayItem property
+    PUSH TO GIT
+12. Investigate <Overlay />
+
+13. Change the aesthetic
+    - Add Fog 
+        - Go to populateScene()
+        - Uncomment setupFog()
+    - Change the colours in setupRenderer(), setupFog() and addLights()
+
+    PUSH TO GIT
+    - Add post processing 
+        - Go to setupScene 
+        - Uncomment setupPostProcessing()
+        Investigate setupPostProcessing()
+
+    PUSH TO GIT
+14. Connect to Netlify to publish website.
+
 
 ## Available Scripts
 
