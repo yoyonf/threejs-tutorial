@@ -35,27 +35,29 @@ npm run start
 
 6. **Open the directory in a text editor (ideally visual studio code)**
 
-- Look at the fundamental function that set up the environment: renderer, scene and camera
+Look at the fundamental function that set up the environment: renderer, scene and camera
   - setupScene()
     - new THREE.Scene()
     - setupCamera()
     - setupRenderer()
 
 7. **Replace Cube with model**
-    - Copy model (glb) to src/Assets/Model folder
-    - Go populateScene() in Cube Environment
-    - Go through the addModel() function
-    - Uncomment setupLoadingManager() in setupScene()
+  - Copy model (glb) to src/Assets/Model folder
+  - Go populateScene() in Cube Environment
+  - Go through the addModel() function
+  - Uncomment setupLoadingManager() in setupScene()
 
     **PUSH TO GIT**
 
 8. **Make interactive**
-    - Go to setupScene()
-        - Uncomment setupRayCaster()
-        - Uncomment setupMouse()
-        - 
+  - Go to setupScene()
+    - Uncomment setupRayCaster()
+    - Uncomment setupMouse()
     - Go to addEventListener()
-        - uncomment OnDocumentDoubleClick
+      - uncomment OnDocumentDoubleClick
+    - Go to removeEventListener()
+      - uncomment OnDocumentDoubleClick
+
 9. **Uncomment addHelpers() in populateScene()**
 
     **PUSH TO GIT**
