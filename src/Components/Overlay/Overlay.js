@@ -36,8 +36,14 @@ const Overlay = (props) => {
 	};
 	return (
 		<OverlayWrapper show={props.show} >
+
+				
 			<FlexWrapper>
+				{/*  Render Title */}
 				{props.project ? <Title>{props.project.title} </Title> : null}
+
+				{/*  Render Video element */}
+
 				{props.project && props.project.type == 'VIDEO' && props.project.video_url ? (
 					<VideoIFrame
 						src={props.project.video_url}
