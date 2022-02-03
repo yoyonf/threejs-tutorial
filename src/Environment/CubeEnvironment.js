@@ -109,7 +109,7 @@ class CubeEnvironment extends Component {
 		// this.setupMouse()
 
 		// Add Post Processing
-		this.setupPostProcessing();
+		// this.setupPostProcessing();
 
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
 	};
@@ -122,10 +122,8 @@ class CubeEnvironment extends Component {
 	populateScene = () => {
 		// this.addHelpers();
 		this.addLights();
-
 		this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
 		// this.addModel(Chair, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
-
 		// this.setupFog();
 	};
 
