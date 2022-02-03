@@ -11,6 +11,7 @@ git clone https://github.com/t-lawan/threejs-tutorial.git
 ``` 
 or use github desktop
   - Fork the repository.
+    - When asked 'How are you planning to use this fork?' select 'For my own purposes'
 
 2. Go to directory of cloned repository using the command below:
 ```bash
