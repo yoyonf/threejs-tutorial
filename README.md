@@ -54,7 +54,10 @@ npm run start
 9. **Uncomment addHelpers() in populateScene()**
 
     **PUSH TO GIT**
-10. Investigate <Overlay />
+10. **Add controls**
+    - Go to setupScene()
+    - Uncomment setupControls()
+    - Investigate setupControls()
 
 11. **Update overlayItem property**
 
