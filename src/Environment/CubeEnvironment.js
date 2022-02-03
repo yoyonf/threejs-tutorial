@@ -98,7 +98,8 @@ class CubeEnvironment extends Component {
 		this.scene = new THREE.Scene();
 		this.setDimensions();
 		this.setupCamera();
-		this.setupControls();
+		// ADD CONTROLS
+		// this.setupControls();
 		this.setupRenderer();
 		
 		// ADD MODELS
