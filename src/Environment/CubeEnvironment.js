@@ -19,6 +19,7 @@ import Overlay from '../Components/Overlay/Overlay';
 import AstronautGLB from '../Assets/Models/Astronaut.glb'
 import Chair from '../Assets/Models/Chair.glb'
 import Car from '../Assets/Models/car.glb'
+import { OverlayItem } from '../Utility/Models/OverlayItem';
 
 const CubeEnvironmentWrapper = styled.div`height: 100vh;`;
 
@@ -54,6 +55,8 @@ class CubeEnvironment extends Component {
 
 	clickableObjects = [];
 
+	overlayItem;
+
     
     constructor(props) {
         super(props);
@@ -64,7 +67,13 @@ class CubeEnvironment extends Component {
 		  showOverlay: false,
 		  overlayProject: null,
 		  pause: false
-        };
+		};
+		
+		this.overlayItem = new OverlayItem(
+			"Soy Cuba", 
+			"VIDEO", 
+			"https://www.youtube.com/embed/BwEabZrGFfI"
+		)
       }
 
 	/**
@@ -124,8 +133,8 @@ class CubeEnvironment extends Component {
 	populateScene = () => {
 		this.addHelpers();
 		this.addLights();
-		this.addCube( new THREE.Vector3(0,0,0),ITEM_LIST.SOY_CUBA);
-		// this.addModel(Car, new THREE.Vector3(0,0,0), ITEM_LIST.SOY_CUBA);
+		this.addCube( new THREE.Vector3(0,0,0),this.overlayItem);
+		// this.addModel(Car, new THREE.Vector3(0,0,0), this.overlayItem);
 		// this.setupFog();
 	};
 
@@ -161,7 +170,6 @@ class CubeEnvironment extends Component {
      */
 	setupControls = () => {
 		this.setupOrbitControls();
-		// this.setupFlyControls();
 	};
 
 		/**
@@ -293,9 +301,9 @@ class CubeEnvironment extends Component {
      */
 	addLights = () => {
 		const lights = [];
-		lights[0] = new THREE.PointLight(0xffffff, 1, 0);
-		lights[1] = new THREE.PointLight(0xffffff, 1, 0);
-		lights[2] = new THREE.PointLight(0xffffff, 1, 0);
+		lights[0] = new THREE.PointLight(new THREE.Color("white"), 1, 0);
+		lights[1] = new THREE.PointLight(new THREE.Color("white"), 1, 0);
+		lights[2] = new THREE.PointLight(new THREE.Color("white"), 1, 0);
 
 		lights[0].position.set(0, 200, 0);
 		lights[1].position.set(100, 200, 100);
