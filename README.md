@@ -3,6 +3,7 @@
 1. Clone repository
 - Use git to clone the repository using the command below:
 
+[Clone repository instructions](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/adding-and-cloning-repositories/cloning-and-forking-repositories-from-github-desktop)
 
 
 ```bash
