@@ -108,7 +108,7 @@ class CubeEnvironment extends Component {
 		// this.setupRayCaster()
 		// this.setupMouse()
 
-		// Add Post Processing
+		// ADD POST PROCESSING
 		// this.setupPostProcessing();
 
 		this.mount.appendChild(this.renderer.domElement); // mount using React ref
@@ -196,7 +196,9 @@ class CubeEnvironment extends Component {
      * @memberof CubeEnvironment
      */
 	setupRenderer = () => {
-		this.renderer = new THREE.WebGLRenderer();
+		this.renderer = new THREE.WebGLRenderer({
+			antialias: true
+		});
 		this.renderer.setClearColor(new THREE.Color('rgb(240, 235, 255)'));
 		this.renderer.setSize(this.width, this.height);
 	};
