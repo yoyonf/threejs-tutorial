@@ -20,7 +20,7 @@ import AstronautGLB from '../Assets/Models/Astronaut.glb'
 import Chair from '../Assets/Models/Chair.glb'
 import Car from '../Assets/Models/car.glb'
 import { OverlayItem } from '../Utility/Models/OverlayItem';
-
+import yes from '../Assets/Models/yiyang_car.glb'
 const CubeEnvironmentWrapper = styled.div`height: 100vh;`;
 
 /**
@@ -133,8 +133,8 @@ class CubeEnvironment extends Component {
 	populateScene = () => {
 		this.addHelpers();
 		this.addLights();
-		this.addCube( new THREE.Vector3(0,0,0),this.overlayItem);
-		// this.addModel(Car, new THREE.Vector3(0,0,0), this.overlayItem);
+		//this.addCube( new THREE.Vector3(0,0,0),this.overlayItem);
+		this.addModel(yes, new THREE.Vector3(0,0,0), this.overlayItem);
 		// this.setupFog();
 	};
 
@@ -150,7 +150,7 @@ class CubeEnvironment extends Component {
 			0.1, // near plane
 			1000 // far plane
 		);
-		this.camera.position.z = 9; // is used here to set some distance from a cube that is located at z = 0
+		this.camera.position.z = 40; // is used here to set some distance from a cube that is located at z = 0
 	};
 
 	/**
