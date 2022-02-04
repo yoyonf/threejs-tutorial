@@ -20,7 +20,11 @@ import AstronautGLB from '../Assets/Models/Astronaut.glb'
 import Chair from '../Assets/Models/Chair.glb'
 import Car from '../Assets/Models/car.glb'
 import { OverlayItem } from '../Utility/Models/OverlayItem';
+<<<<<<< HEAD
 import yes from '../Assets/Models/yiyang_car.glb'
+=======
+import Parrot from '../Assets/Models/Parrot.glb'
+>>>>>>> d3dcfe12091872d334dd5c004793497b43f4c453
 const CubeEnvironmentWrapper = styled.div`height: 100vh;`;
 
 /**
@@ -133,8 +137,13 @@ class CubeEnvironment extends Component {
 	populateScene = () => {
 		this.addHelpers();
 		this.addLights();
+<<<<<<< HEAD
 		//this.addCube( new THREE.Vector3(0,0,0),this.overlayItem);
 		this.addModel(yes, new THREE.Vector3(0,0,0), this.overlayItem);
+=======
+		// this.addCube( new THREE.Vector3(0,0,0),this.overlayItem);
+		this.addModel(Parrot, new THREE.Vector3(0,0,0), this.overlayItem);
+>>>>>>> d3dcfe12091872d334dd5c004793497b43f4c453
 		// this.setupFog();
 	};
 
@@ -150,7 +159,11 @@ class CubeEnvironment extends Component {
 			0.1, // near plane
 			1000 // far plane
 		);
+<<<<<<< HEAD
 		this.camera.position.z = 40; // is used here to set some distance from a cube that is located at z = 0
+=======
+		this.camera.position.z =50; // is used here to set some distance from a cube that is located at z = 0
+>>>>>>> d3dcfe12091872d334dd5c004793497b43f4c453
 	};
 
 	/**
@@ -205,7 +218,7 @@ class CubeEnvironment extends Component {
      *
      * @memberof CubeEnvironment
      */
-	setupRenderer = () => {
+	setupRenderer =() => {
 		this.renderer = new THREE.WebGLRenderer({
 			antialias: true
 		});
